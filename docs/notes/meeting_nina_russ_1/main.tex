@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+%
+\usepackage{abstract,amsmath,amssymb,latexsym}
+\usepackage{enumitem,epsf}
+\usepackage[stable]{footmisc}
+\usepackage{fullpage,tikz,float}
+\usepackage{caption}
+\usepackage[numbers]{natbib}
+\usepackage[pdftex,colorlinks]{hyperref}
+\usepackage{array, booktabs}
+\usepackage{graphicx}
+\usepackage{colortbl}
+\usepackage[TS1,T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{multirow}
+
+
+\newcommand{\foo}{\makebox[0pt]{\textbullet}\hskip-0.5pt\vrule width 1pt\hspace{\labelsep}}
+
+
+% locally defined macros
+\usepackage{macros}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Use the following for revealing TODOs and appendices
+% Options are: \draftfalse or \drafttrue
+\newif\ifdraft
+\draftfalse
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+\begin{center}
+	\textbf{Learning-Theoretic Foundations of Neural Architecture Selection \\ Meeting Notes -- William H. Guss -- 12-19-2017}
+\end{center}
+
+\noindent \medskip \underline{Existing Approach for Algorithm Selection Theory}
+
+Algorithm selection theory essentially attempts to given sample complexity and computational efficiency guarantees to algorithms which learn different algorithmic configurations given a specific application domain. For example, one might ask what sample complexity yields an $\epsilon$-optimal architecture in  neural architecture search (Zoph and Le, 2017)? The traditional tools of statistical learning theory aren't equipped to answer these questions because algorithms which are seemingly "close" in algorithm-space can have drastically different behavior. 
+
+The basis of algorithm selection theory aims to solve the following problem formally. Recall a basic definition of Gupta and Roughgarden. Let $\Pi$ be a set of "problem instances."
+
+\begin{definition}
+	A learning algorithm $L$ $(\epsilon, \delta)$-learns the algorithm class $\scripta$ with respect to the cost function \verb|cost| if, for every distribution $\scriptd$ over $\Pi$, with probability at least $1 - \delta$ over the choice of a sample $\scripts \sim \scriptd^m$, $L$ outputs an algorithm $\hat h \in \scripta $ such that 
+
+	\begin{equation*}
+		\mathbb{E}_{x \in \scriptd}\left[  \text{cost}\left(\hat{h}, x\right)\right] - \min_{h \in \scripta} \{\mathbb{E}_{x \in \scriptd}[\text{cost}(h,x)]\} < \epsilon.
+	\end{equation*}
+
+	\noindent We require that the number of samples be polynomial in $n$, $\frac{1}{\epsilon}$, and $\frac{1}{\delta}$, where $n$ is an upper bound on the size of the problem instances in the support of $\scriptd$.
+ \end{definition}
+
+
+ Additionally, we want to find an algorithm that $(\epsilon, \delta)$-learns an algorithm class with computational efficiency (polynomial time in $n, 1/\delta, 1/\epsilon$.) For infinite algorithm classes, this is a difficult theoretical problem, as naive approaches yield algorithms with exponential or potentially infinite running time.
+
+ In (Balcan et al. 2017), a central approach to finding such algorithms is in observing that although parameterizations of algorithm-space are generally not regular (continuous, or smooth) with respect to the performance of those algorithms, a deeper analysis of algorithmic structure often results in those algorithms being piece-wise regular. In this scenario, the traditional tools of learning theory can be used on those individual pieces and integrated in a finite (although potentially combinatorial way). To understand the methodology, we turn to a concrete example.
+
+Specifically the selection of \emph{rounding} functions in the Random Projection, Randomized Rounding algorithms for solving the graph max-cut problem is studied by an analysis of a particular single-parameter family of rounding functions:
+
+\begin{enumerate}
+	\item A family of these functions $\Phi = \{ \phi_s\ |\ s \in \mathbb{R}_{\geq 0}\}$  is shown to be piecewise quadratic with respect to \verb|cost|, for a fixed input. Note that $\phi_s \in \Phi$ induces an algorithm $A_s \in \scripta.$
+	\item The pseudo-dimension (think VC-dimension) of the induced hypothesis class $\scripth_A$ is shown to be $\Theta(\log n)$--This enables us to apply the standard learning theory bounds of (Anthony and Bartlett (2009)).
+
+	\item Show computational efficiency of some algorithm selection meta-algorithm as a result of the piecewise regularity of $\scripta$. Furthermore, it is shown that the algorithm achieves optimality on the sample.
+
+	\item Given sample optimality and finite pseudo-dimension, we can then bound the expected performance on new "problem instances" drawn from $\scriptd$ using normal learning theory bounds.
+\end{enumerate}
+
+A similar analysis is given in the case of agglomerative clustering, again with a real valued parameterization of an algorithm space. \\
+
+\medskip \noindent  \underline{Application to Neural Architecture Selection}
+
+In neural architecture selection, given some training data $\scriptd$ we would like to chose an architecture which is suitably expressive and regularized enough to generalize "optimally" to the training data. A framing in the the context of algorithm configuration theory is as follows.
+\begin{itemize}
+
+	\item \textbf{The algorithm class.} A neural architecture $G$ is a \emph{modular} configuration of a learning algorithm $\verb!NNlearn!_G(\scriptd)$ which executes stochastic gradient descent on the data set $D$ initializing a neural network instantiated from $G$.
+
+	This algorithm class potentially has several variants:
+	\begin{itemize}
+		\item \emph{Single step of gradient descent.} We could take $\verb!NNlearn!_G$ to only make one gradient descent step with respect to the whole dataset $\scriptd$ or a batch, depending on our notion of "problem" instance.
+
+		\item \emph{Assume algorithm learns.} For the sake of simplicity, we may as well remove any particularity of learning; that is, assume that $\verb!NNlearn!_G(\scriptd)$ achieves the a "good-enough" local optima in cost with respect to its parameters. 
+
+		\item \emph{Gradient descent until stopping condition.}
+	\end{itemize}
+
+	\item \textbf{The goal.} We would then find a computationally efficient meta-algorithm which $(\epsilon, \delta)$-learns the algorithm class $\scripta =\{\verb!NNlearn!_G\ |\ G \in \scriptg \}$ where $\scriptg$ is some candidate architecture space. Note the parameterization of $G$ is critical!
+
+	\item \textbf{The problem instances.} In neural architecture selection/search methods, we consider the simple setting where we have access only to one dataset. Furthermore there is an extremely large cost to executing $\verb!NNlearn!_G$ on large datasets with $G$ sufficiently powerful. Therefore problem instances must be carefully selected.
+	\begin{itemize}
+	\item \emph{Problem instances as datasets in a particular application domain.}
+	\item \emph{Problem instances as batches.} If batches are seen as the problem instance, the meta-algorithm would find an architecture $G$ and thereby $\verb!NNlearn!_G$ which performs most optimally on each batch in expectation. This would simplify computation of the relationship between $G$ and \verb|cost|.
+
+	This might also be interesting in the context of Nina's work on Private/Online Optimization of Piecewise Lipschitz Functions; specifically, online architecture selection.
+	\end{itemize}
+
+	\item \textbf{The parameterization of $\scriptg$.} Central to the computational efficiency of the algorithms given in Nina's analysis is the parameterization of certain algorithm configurations by a real-valued family which is piecewise regular with respect to \verb|cost|.
+
+	In neural architecture selection, subspaces of $\scriptg$ are largely discrete. For example, the number of neurons on a layer, the depth of an architecture, or more generally the graph topology of a particular architecture. To retain the effectiveness of current techniques, such a parameterization is essential.
+
+	\begin{itemize}
+		\item \emph{Continuous parameterization of expressivity }(see (Guss, 2016)).
+
+		\item \emph{Continuous interpolation between networks with different numbers of neurons.} (Dropout-esque, fuzzy sets, etc).
+
+		\item \emph{Grouping of architectures according to a more course measure of performance}. This could be topological phase transitions. We could also choose an exponential parameterization, ie. $\# \text{ neurons} = 2^g, g\in \mathbb{R}.$
+
+	\end{itemize}
+
+	Regardless of choice of parameterization, it is important to find one that requires that we need not re-run the optimization too many times.
+
+
+\end{itemize}
+
+\medskip \noindent \underline{Other Notes}.
+\begin{itemize}
+\item \textbf{Compositionality.} In Algorithm 2 of (Balcan et al. 2017), the multiple steps of max-cut provide a particular advantage. The computation of the SPD embedding for each of the problem instances need only be done once in a first step, then the selection of $s$ mereley effects a second step.
+
+ This compositional configurability presents both a challenge and a basis for the transposition of these ideas to neural architecture search: on one hand, $\verb!NNlearn!_G$, is merely a single-step process with respect to the chosen $G$, as we change $G$ we need re-run $\verb!NNlearn!_G$; this could be a costly process. On the other hand, neural architecture search is in essence compositional; usually we determine the number of neurons on each layer one layer at a time. Therefore the right meta-learning algorithm might select the optimal architecture with respect to a sample compositionally: first compute the number of neurons on the first layer, then compute the number of neurons on the second layer, then $\dots$, stop.
+\end{itemize}
+
+
+\end{document}
