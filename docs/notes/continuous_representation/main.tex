@@ -1,0 +1,259 @@
+\documentclass[12pt]{article}
+%
+\usepackage{abstract,amsmath,amssymb,latexsym}
+\usepackage{tikz-cd}
+\usepackage{enumitem,epsf}
+\usepackage{fullpage,tikz,float}
+\usepackage[numbers]{natbib}
+\usepackage[pdftex,colorlinks]{hyperref}
+
+% locally defined macros
+\usepackage{macros}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Use the following for revealing TODOs and appendices
+% Options are: \draftfalse or \drafttrue
+\newif\ifdraft
+\draftfalse
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{
+ \begin{minipage}[c]{1.05\textwidth}
+ 	\centerline{Towards a Continuous Hyperparameter}
+ 	\centerline{Representation for Neural Networks}
+ \end{minipage}
+}
+
+\author{
+	\vspace{1cm}
+	William Guss\thanks{Email: wguss@berkeley.edu} \and
+	Other Author\thanks{Email: other@berkeley.edu} \and 
+	Other Author\thanks{Email: other@berkeley.edu}
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+%% \vspace{-4cm}
+%% \vspace*{\fill} {
+%% \renewcommand{\abstractnamefont}{\normalfont\large\bfseries}
+%% \renewcommand{\abstracttextfont}{\normalfont\normalfont}
+%% \renewcommand{\baselinestretch}{1.0}
+\begin{abstract}
+%% \vspace{-0.25cm}
+% \input{abstract}
+\end{abstract}
+%% }
+%% \vspace*{\fill}
+
+\ifdraft
+\newpage
+\input{todo}
+\fi
+
+\newpage
+\thispagestyle{empty}
+
+{\large
+\topskip0pt
+\vspace*{\fill}
+\tableofcontents
+\vspace*{\fill}
+}
+
+\newpage
+
+\setcounter{page}{1}
+
+% TODO: After planning phase move to sections.
+
+\section{Planning \& Unorganized Results (*)}
+
+
+\subsection{General Todos and deadlines}
+\begin{enumerate}
+	\item \todo{Formalize capacity loss.} This could be expexcted training loss or expected test accuracy, etc. The goal with this step is to find some sort of notion of loss which accounts for how when adding capacity, (randomly initialized), the gains to performance  will almost never be immediate but in how quickly learning converges and how accurate the model is on the test set.  In providing the formalizaiton, we aim to either show that \emph{no local\footnote{Local in this case means that the search method is with respect to ascending the immediate training accuracy, not local in the sense that the search is local in hyperparameter space, ie. $d(\theta_t, \theta_{t+1}) < \epsilon$ where $\theta$ are model hyper parameters and $d$ is some distance measure.}, gradient based NAS exists} or propose a new gradient based NAS which descends this new expected capacity loss.
+	\item \todo{Select a conference for submission.}
+	\item \todo{Finish motivation section.}
+	\item \todo{Write problem statement}
+	\item \todo{Formalize (and write about) the continuous parameterization of NNs.}
+	\begin{itemize}
+		\item \todo{Formalize continuous parameterization of hidden dimension.}
+		\item \todo{Formalize continuous parameterization of certain hyperparameters in convolutional layers.} This is especially important if it is not possibleto parameterize a gain in hidden dimension. We might be able to pull off just making certain convolution hyperparameters continuous (e.g. stride).
+		\item \todo{Formalize continuous parameterization of computation graph topology.}
+	\end{itemize}
+
+	\item \todo{Populate reading list section.}
+	\item \todo{Propose several experiments.} Furthermore what follows are just a few ideas.
+	\begin{itemize}
+		\item \todo{Create an experiment which compares DNAS to continuous paramaeterization NAS.}
+		\item \todo{Create an experiment which uses DDPG or A-NAF to perform reinforcement learning on the continuous representation.} We want to show that despite our heradling of "local" search methods, the entire architecture search community can use this unified representation to their benefit. 
+
+		An interesting sub-experiment here would be something to do with comparison to how RL performs on a descrete representation of hyperaparameters using DDPG with a non-differentaible transition function\footnote{This basically forces the continuous actions of the actor to be in a softmax distribution and then selects the argmax as the discrete action.} If continuous outperforms the standard results, it becomes adventageous outside of DNAS literature like DNAS and Neural Fabrics.
+	\end{itemize}
+	\item \todo{Create a dataset of datasets from UCI and OpenAI Gym extension. }
+
+\end{enumerate}
+
+
+\subsection{Motivation \& Goal}
+
+
+In recent years, the success of deep learning has revolutionized machine learning in application to computer vision, reinforcement learning, and natural language processing\footnote{\todo{cite}}. In addition to their optimal performance, neural networks require little to no feautre engineering on the part of the practitioner. However in most recent approaches, considerable would-be feature engineering effort is placed on neural network design; that is, the price of automatically learning features in neural networks is that the pracitioner must then specify with some inductive bias what parameterixation and network capacity is optimal for learning those features. For example, the choice of convolutional or fully-connected layers in computer vision, or depth, width, and other topological properties of neural networks, all define the set of features which can be--or probabilistically will be--learned over the course of training.  To paraphrase Andrew Ng, "coming up with features is difficult, time-consuming, and requries expert knowledge;" and by analogy neural network design has become the new feature engineering of machine learning.
+
+In an attempt to eliminate the dpeendence of deep learning on architecture engineering, two major approaches have been set forth: the first, neural architecture search, specifies architectures as existing in a unified hyperparameter space and then performs various search methods therein; the second, hyperparameter-free deep learning , parameterizes the space of architectures so that the aforementioned hyperparameters are themeselves learned using the same optimizer as the weights and parameters they specify. In essence neural architecture search is a learned--and sometimes brute force\footnote{\todo{Cite random search of architecture paper if this does exist}}--approximation of the practitioner, which shares striking similarities to the traditional feature selection methods of statistical machine learning\footnote{\todo{Cite old ML automatic feature search methods}}. On the other hand, current hyperparameter-free approaches .... in direct opposition with the idea of extensions and random initializations. 
+
+
+\todo{Discuss various solutions in aggregate i.e. neural architecture search, differentiable methods.}
+
+\todo{Suggest new method whic hdoes not rely on }
+
+
+\subsection{Questions/Hypothesis}
+\begin{itemize}
+\item How to do it?
+\item Is the optimization problem tractable (e.g. will it lead to getting stuck in local optima which are far from the global optimum)?
+\item Use DFMs to represent widtha
+\item What about depth? It might not matter
+\item Graphons = DFMs (how many times you apply surface to itself determines how deep in the network you go)
+\item Takes approaches in fabrics and DAS and fully realizes a continuous optimization, how does performance compare in the continuous version?
+\item How do you scale continuous hyperparameter representation search? What search methods are optimal in this space (gradient)?  https://arxiv.org/abs/1609.01596 
+\item Is there any substantial benefit from separating the optimization of hyperparameters and parameters using direct feedback alignment?
+\item Gradient-based Hyperparameter Optimization through Reversible Learning
+\end{itemize}
+\subsection{Theory}
+
+\subsubsection{Desired Results}
+
+\subsubsection{Some Exposition}
+
+\subsection{Experiments}
+
+The following are a set of desired experiments to verify the newly proposed hyperparameter representation.
+
+\subsection{Reading List}
+
+
+
+
+
+\subsection{Related Notes}
+
+\begin{itemize}
+	\item \href{https://github.com/MadcowD/conthyperrep/blob/master/docs/notes/note1.pdf}{Continuous Hidden Dimension}
+	\item \textbf{Some Thoughts on Local Search on Hidden Units.} Let $\scriptn$ be the $\mathfrak{n}$-discrete instatntiation of the following DFM
+	\begin{equation*}
+	\begin{tikzcd}
+		\scripto: \boxed{\mathbb{R}^n} \arrow{r}{\mathfrak{d}} & \boxed{L^1(E(\gamma))} \arrow{r}{\mathfrak{f}} & \boxed{\mathbb{R}}
+	\end{tikzcd}
+	\end{equation*}
+	where $E: \mathbb{R} \to \scriptl(\mathbb{R})$ is a function which parameterizes the domain over which the $\mathfrak{f}$-functional integrates.
+	
+
+	It was concluded in the last note that if $E(\gamma) = [0, \gamma] \in \scriptl(\mathbb{R})$ then we have the following problem for the piecewise constant
+	parameterization of weights on $\mathfrak{f}, \mathfrak{d}.$ Let $F: \mathbb{R} \to \mathbb{R}$ be some loss function, and then computation of the local gradient ascent path
+	gives
+	\begin{equation*}
+	\begin{aligned}
+		\frac{\partial F}{\partial \gamma} &= \frac{d F}{d y^2} \frac{\partial y^2}{\partial \gamma} \\
+		 &= \frac{d F}{d y^2} \cdot \left[\frac{\partial }{\partial \gamma}  \int_{[0, \gamma]} \sum_{k=1}^\infty  [\sigma \circ \mathfrak{d}(x)](u)  \chi_{k\cdot [0,1]}(u) W^1_{k}\ d\mu(u)   \right]_\mathfrak{n} \\
+		 &= \frac{d F}{d y^2} \cdot \left[ \sum_{k=1}^\infty  [\sigma \circ \mathfrak{d}(x)](\gamma)  \chi_{k\cdot [0,1]}(\gamma) W^1_{k}    \right]_\mathfrak{n} \\
+		 &= \frac{d F}{d y^2} \cdot  y^1_{\floor*{\gamma}} W^1_{\floor*{\gamma}}.
+	\end{aligned}
+	\end{equation*}
+
+	In otherwords, gradient ascent on $F$ with respect to $\gamma$ will increase $\gamma$ if the error will decrease when the contribution of the last output neuron is increased (in magnitude); that is, if $\gamma' > \gamma$ then $(\gamma - \floor*{\gamma})$ increases, and thus $E$ decreases by virtue of the term 
+	\begin{equation*}
+		\int_{\floor*{\gamma}\cdot [0,1]} y^1(u) W^1_{\floor*{\gamma}}\ d\mu(u) = (\gamma - \floor*{\gamma}) y^1_{\floor*{\gamma}} W^1_{\floor*{\gamma}}
+	\end{equation*} increasing. Searching over $\gamma$ is effecitvely the same as spending extra time changing the weight $W_{\floor*{\gamma}}^1$ using two linearly dependent parameters, $(\gamma - \floor*{\gamma})$ and $W_{\floor*{\gamma}}^1$, itself\footnote{An additonal conclusion is, at least by analogy, that local search on $E(\gamma)$ at any one place assumes that adjacent neurons have similar values }. 
+
+	Thus we are led to the question: \emph{Is hyperparameter search a matter of immediate model accuracy or expected capacity for accuracy, and in that distinction, does optimizing hyperparameters with respect to model accuracy coorespond to optimization on model capactiy and vice versa?}  Let us examine this question in the following context. \
+
+	Above, we noted that a local search on $\gamma$ decreased error in exactly the same fashion as standard gradient descent, but a step in $\gamma$ of more than integral amount can increase error. To see this let $k = \floor*{\gamma}$. When $\Delta \gamma > 1$ then the $(k+1)$th neuron is then "enabled" so-to-speak. However, this $(k+1)$th neuron may perform a computation that increases error and so in the next step of gradient descent $\Delta \gamma$ would be negative, retreating away from the added model capacity of a randomly intiialized $(k+1)$th neuron. That is not to say that $\gamma$ might not increase again, repeating the process, or in the limit of such oscilations the update $ W^1_{k+1} -\alpha\partial E/\partial W^1_{k+1} \to W^1_{k+1}$, will eventually contribute to model accuracy, but relying on these dynamics as a result with no guarentees of convergence is questionable. Despite the fact that $\scriptn$ may need additional model capacity\footnote{There are functions which are unlearnable without a sufficient number of neurons for example.}, local search on capacity with respect to accuracy may not yield the required capacity to increase accuracy in the limit.
+
+
+	Baring that local search doesn't necessarily yield the desired properties, we might now consider a global search.
+	The more general setting is of course considering $E$ as a function of variable support geometry. In particular let $E: C^{\infty}_*(\mathbb{R}) \to \scriptl(\mathbb{R})$ so that $f \mapsto \text{supp}(|f|/2 + f/2).$ Not that $C^{\infty}_*(\mathbb{R})$ is the set of infinitely differentiable functions which vanish on at most a $\mu$-null set. Then computation of a gradient descent step becomes a variational problem
+	\begin{equation*}
+		\begin{aligned}
+			\frac{\delta F}{\delta f} &= \frac{\partial F}{\partial y^2} \frac{\delta y^2}{\delta f}  \\
+			&= \frac{\partial F}{\partial y^2} \left[\frac{\delta}{\delta f} \int_{E(f)} y^1 \omega_1\ d\mu \right]_{\mathfrak{n}} \\
+			&= \frac{\partial F}{\partial y^2} \left[\frac{\delta}{\delta f} \lim_{\kappa \to \infty}\int_{\reals} {\sigma}(\kappa f) y^1 \omega_1\ d\mu \right]_{\mathfrak{n}}
+		\end{aligned}
+	\end{equation*}
+
+	Now we attempt to compute the functional derivative of integration; that is, let $J_\kappa[f] = \int_{\reals} \sigma(\kappa f) y^1 \omega_1\ d\mu$.
+	Then
+	\begin{equation*}
+		\begin{aligned}
+			\frac{\delta J}{\delta f} &= \lim_{\epsilon \to 0} \lim_{\kappa \to \infty} \frac{J_\kappa[f + \epsilon \phi] - J_\kappa[f] }{\epsilon} \\
+			&= \lim_{\kappa \to \infty} \left[\frac{d}{d\epsilon} J_\kappa[f + \epsilon \phi]\right]_{\epsilon = 0} \\
+			&= \lim_{\kappa \to \infty} \left[\int_{\mathbb{R}} \frac{d}{d\epsilon} \sigma(\kappa(f + \epsilon \phi))y^1\omega_1\ d\mu \right]_{\epsilon = 0} \\
+			&= \lim_{\kappa \to \infty} \left[\int_{\mathbb{R}}  \sigma'(\kappa(f + \epsilon \phi)) \kappa \phi  y^1\omega_1\ d\mu \right]_{\epsilon = 0} \\
+			&=  \int_{\mathbb{R}}  \lim_{\kappa \to \infty} \sigma'(\kappa f) \kappa \phi  y^1\omega_1\ d\mu. \\
+			&=  \int_{\mathbb{R}} \delta(f(u)) \phi(u)  y^1(u)\omega_1(u)\ d\mu(u).
+			= \sum_{z \in Z(f)} \phi(z) y^1(z) \omega_1(z)
+		\end{aligned}
+	\end{equation*}
+	where $Z(f)$ is the set of zeroes of $f$. Thus we yield a functional gradient ascent step via the linear approximation
+	\begin{equation*}
+	\begin{aligned}
+		J[\phi] &= J[f] + \frac{\delta J}{\delta f}[\phi -f] + \frac{1}{2t} \left\|\phi - f\right\|^2 \\
+		0&= 0 +  \frac{\delta J}{\delta f} + \frac{\phi - f}{t} \\
+		\phi &= f - t \left(\psi \mapsto \sum_{z \in Z(f)} \psi(z) y^1(z) \omega_1(z)\right).
+	\end{aligned}
+	\end{equation*}
+	In addition to the previous update rule, we come to the redundant conclusion that $\delta J/\delta f|_{f=\Gamma} = 0$ for $\Gamma$ with no zeros, and therefore when $\Gamma < 0$ we have only found a minimum for $J$. In any case, the gradient in the hard limit of $k$ is zero at every point at which $f(u)$ is non-zero. Using a soft limit $\kappa \not \to \infty$ we get an ascent direction in the continuum of our initial search on $\gamma$l that is
+	\begin{equation*}
+		\phi = f - \sigma'(\kappa f) \kappa \phi \sum_{k=1}^\infty \chi_{k\cdot [0,1]} \left[\sigma \circ \delta(x)\right] W_k^1.
+	\end{equation*}
+	However, we face the same question as to whether optimziation on the loss function would yield ascent in the direction of random vectors for the purpose of capacity and not by their similarity actions to values which decrease error.
+
+	   \item \textbf{Fuzzy Vector Spaces as a Solution to Continuous Parameterization of Hidden Dimension.\footnote{
+	   This note is speculatory, and if time permits, a prerequisites seciton will be added to this document wherein a full discussion of fuzzy-vector spaces, and proofs of the optimizations there involved will be presented.}} Before we digress into a discussion of meta-loss functions\footnote{\emph{Meta-loss functions} means those which are conducive to increasing capacity in spite of immediate test error.}, we will consider an alternative approach to continuous parameterization.
+	   
+	   At its core, our task is to at least answer the following question: how is it possible to exhibit a real number of neurons on any given layer? As we saw in the previous notes, DFMs yield an answer that although locally satisfactory is inhibited globally. Instead, we might equate the aforementioned question with that of linear algebra: are there spaces with real algebraic\footnote{The reader who has not studied measure theory need not concern themselves with this qualifier. However, when we discuss real dimension, we mean not that the space has some fractal, real Hausdorff dimension, but that the space potentially has a module structure and a Fusion rule from which trace defines dimension.} dimension?  In a category theoretic sense, this question has an answer, but all examples (see Fibonacci categories) of fractional algebraic dimension lose the linear structure and any computable parameterization. Despite this, a last resort is to take literally the dimension of a vector space as the cardinality of its basis, and again our question is reduced to the following: do there exist linearly independent sets in $\mathbb{R}^\mathbb{N}$ with real cardinality. The space they 'span' in such a regime has the desired property for our continuous parameterization.
+	   
+    	   A plausible answer to these questions is fuzzy vector spaces. In these spaces, a basis is a fuzzy set of vectors which both span their space and are linearly independent to eachother. As fuzzy sets, their cardinality, and hence the dimensionality of the spece, is not an integer, but a fuzzy integer; that is to say, their cardinality is a postivie real number. Without digressing into a full discussion of fuzzy vector spaces, it suffices to think of this approach as similar to that of dropout. Each neuron (and potential neuron) has a grade of membership, and there is a constraint on the sum of these grades. As learning occurs the constraint changes and sume neurons are given larger and larger gradings untill they are 'members'. The grading of a neuron is a value in $[0,1]$ and as such can be thought of as a probability, in essence the 'number' of hidden units is an expectation on the activity of those hidden units; in a sense we gradient ascend on which neurons will be active in expectation and not in the magnitudes of their contributions. 
+    	   
+    	   \emph{Do these expectations some how code for capacity, or just merely introduce noise into the process?}
+    	   \todo{Finish the note: add all definitions for fuzzy spaces, provide gradient ascent analysis.}
+	   
+
+	   \item \textbf{Model Capacity and Expectation.}
+	   
+	   
+
+
+\end{itemize}
+
+
+
+
+
+
+
+
+% \input{related}
+% \input{setting}
+% \input{skeletons}
+% \input{results}
+% \input{compkerspa}
+% \input{proofs}
+% \input{discussion}
+
+\ifdraft
+\appendixsl
+% \input{appendix}
+\fi
+
+% \subsection*{Acknowledgments}
+
+\bibliographystyle{plainnat}
+\bibliography{bib}
+
+\end{document}
